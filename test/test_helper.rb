@@ -16,7 +16,7 @@ require File.dirname(__FILE__) + '/../config/solr_environment.rb'
 
 # Load Models
 models_dir = File.join(File.dirname( __FILE__ ), 'models')
-Dir[ models_dir + '/*.rb'].each { |m| require m }
+Dir[ models_dir + '/*.rb'].sort.each { |m| require m }
 
 if defined?(ActiveSupport::TestCase)
   class ActiveSupport::TestCase
