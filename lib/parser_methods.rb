@@ -135,13 +135,16 @@ module ActsAsSolr #:nodoc:
     
     # Reorders the instances keeping the order returned from Solr
     def reorder(things, ids)
-      ordered_things = Array.new(things.size)
-      raise "Out of sync! Found #{ids.size} items in index, but only #{things.size} were found in database!" unless things.size == ids.size
-      things.each do |thing|
-        position = ids.index(thing.id)
-        ordered_things[position] = thing
+      found = ids.select{|id| things.map(&:id).index(id)}
+      unfound = ids - found
+
+      # delete the no longer (in the DB) existing objects from the solr index
+      unless unfound.empty?
+        unfound.each{|id| solr_delete "#{self.name}:#{id}"}
+        warn "Out of sync! Found #{ids.size} items in index, but only #{things.size} were found in database! Unfound #{unfound.size} objects where removed from the index!"
       end
-      ordered_things
+
+      things.sort_by{|thing| found.index(thing.id)}
     end
 
     # Replaces the field types based on the types (if any) specified

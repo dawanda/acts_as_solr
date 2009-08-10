@@ -139,8 +139,10 @@ class ParserMethodsTest < Test::Unit::TestCase
     end
   
     context "when reordering results" do
-      should "raise an error if arguments don't have the same number of elements" do
-        assert_raise(RuntimeError) {@parser.reorder([], [1])}
+      should "delete from index when objects could not be found" do
+        @parser.stubs(:name).returns "Xxx"
+        @parser.expects(:solr_delete).with("Xxx:1")
+        silence_warnings{ @parser.reorder([], [1]) }
       end
     
       should "reorder the results to match the order of the documents returned by solr" do
