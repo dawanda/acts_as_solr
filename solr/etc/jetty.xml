@@ -186,10 +186,11 @@
     <Ref id="RequestLog">
       <Set name="requestLog">
         <New id="RequestLogImpl" class="org.mortbay.jetty.NCSARequestLog">
-          <Arg><SystemProperty name="jetty.logs" default="./logs"/>/jetty.request.log</Arg>
+          <Arg><SystemProperty name="jetty.logs" default="./log"/>/jetty.request.log</Arg>
           <Set name="append">true</Set>
           <Set name="extended">false</Set>
           <Set name="LogTimeZone">GMT</Set>
+          <Set name="retainDays">90</Set>
         </New>
       </Set>
     </Ref>
