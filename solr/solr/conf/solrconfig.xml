@@ -416,6 +416,21 @@
      <str name="echoHandler">true</str>
     </lst>
   </requestHandler>
+
+  <requestHandler name="/admin/file" class="org.apache.solr.handler.admin.ShowFileRequestHandler" >
+    <lst name="defaults">
+      <str name="echoParams">explicit</str>
+    </lst>
+    <lst name="invariants">
+      <str name="hidden">synonyms.txt</str>
+      <str name="hidden">stopwords.txt</str>
+      <str name="hidden">stopwords-fr.txt</str>
+      <str name="hidden">stopwords-de.txt</str>
+      <str name="hidden">protwords.txt</str>
+      <str name="hidden">scripts.conf</str>
+      <str name="hidden">xslt</str>
+    </lst>
+  </requestHandler>
   
   <!-- queryResponseWriter plugins... query responses will be written using the
     writer specified by the 'wt' request parameter matching the name of a registered
