@@ -47,6 +47,11 @@ module ActsAsSolr #:nodoc:
     def facets
       @solr_data[:facets]
     end
+
+    #did you mean ??? data
+    def spellcheck
+      @solr_data[:spellcheck]
+    end
     
     # Returns the highest score found. This method is
     # also aliased as highest_score

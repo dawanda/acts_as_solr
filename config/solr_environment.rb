@@ -9,7 +9,7 @@ SOLR_DATA_PATH = "#{rails_root_dir}/solr/#{ENV['RAILS_ENV']}" unless defined? SO
 
 unless defined? SOLR_PORT
   config = YAML::load_file(rails_root_dir+'/config/solr.yml')
-  
+
   SOLR_PORT = ENV['PORT'] || URI.parse(config[ENV['RAILS_ENV']]['url']).port
 end
 

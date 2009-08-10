@@ -42,6 +42,7 @@
     <fieldType name="sfloat" class="solr.SortableFloatField" sortMissingLast="true" omitNorms="false"/>
     <fieldType name="sdouble" class="solr.SortableDoubleField" sortMissingLast="true" omitNorms="false"/>
     <fieldType name="date" class="solr.DateField" sortMissingLast="true" omitNorms="false"/>
+
     <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
@@ -138,7 +139,16 @@
     </fieldtype>
 
     <fieldType name="rand" class="solr.RandomSortField" />
- </types>
+
+    <fieldType name="textSpell" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StandardFilterFactory"/>
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+      </analyzer>
+    </fieldType>
+  </types>
 
 
  <fields>
@@ -179,6 +189,13 @@
 
  <copyField source="*_t" dest="text"/>
  <copyField source="*_facet" dest="text"/>
+ 
+ <!-- for spellchecking -->
+ <copyField source="title_in_de_t" dest="spell_de"/>
+ <copyField source="title_in_en_t" dest="spell_en"/>
+ <copyField source="title_in_fr_t" dest="spell_fr"/>
+ <!-- for spellchecking -->
+
  <solrQueryParser defaultOperator="AND"/>
 
 </schema>

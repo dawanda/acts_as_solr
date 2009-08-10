@@ -13,7 +13,9 @@
 class Solr::Request::Standard < Solr::Request::Select
 
   VALID_PARAMS = [:query, :sort, :default_field, :operator, :start, :rows, :shards, :date_facets,
-    :filter_queries, :field_list, :debug_query, :explain_other, :facets, :highlighting, :mlt]
+    :filter_queries, :field_list, :debug_query, :explain_other, :facets, :highlighting, :mlt, :spellcheck,
+    :spellcheck_query, :spellcheck_collate, :spellcheck_dictionary, :spellcheck_count, :spellcheck_omp
+  ]
   
   def initialize(params)
     super('standard')
@@ -121,6 +123,15 @@ class Solr::Request::Standard < Solr::Request::Select
           end
         end
       end
+    end
+
+    if @params[:spellcheck]
+      hash[:spellcheck] = true
+      hash["spellcheck.count"] = @params[:spellcheck][:count] || 3
+      hash["spellcheck.q"]      = @params[:spellcheck][:query]
+      hash["spellcheck.collate"] = @params[:spellcheck][:collate]
+      hash["spellcheck.dictionary"] = @params[:spellcheck][:dictionary]
+      hash["spellcheck.onlyMorePopular"] = @params[:spellcheck][:omp]
     end
     
     # highlighting parameter processing - http://wiki.apache.org/solr/HighlightingParameters

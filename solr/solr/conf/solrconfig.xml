@@ -262,6 +262,10 @@
        <str name="version">2.1</str>
         -->
      </lst>
+
+     <arr name="last-components">
+       <str>spellcheck</str>
+     </arr>
   </requestHandler>
 
   <!-- DisMaxRequestHandler allows easy searching across multiple fields
@@ -361,33 +365,6 @@
   </requestHandler>
 
 
-  <!-- SpellCheckerRequestHandler takes in a word (or several words) as the
-       value of the "q" parameter and returns a list of alternative spelling
-       suggestions.  If invoked with a ...&cmd=rebuild, it will rebuild the
-       spellchecker index.
-  -->
-  <requestHandler name="spellchecker" class="solr.SpellCheckerRequestHandler" startup="lazy">
-    <!-- default values for query parameters -->
-     <lst name="defaults">
-       <int name="suggestionCount">1</int>
-       <float name="accuracy">0.5</float>
-     </lst>
-     
-     <!-- Main init params for handler -->
-     
-     <!-- The directory where your SpellChecker Index should live.   -->
-     <!-- May be absolute, or relative to the Solr "dataDir" directory. -->
-     <!-- If this option is not specified, a RAM directory will be used -->
-     <str name="spellcheckerIndexDir">spell</str>
-     
-     <!-- the field in your schema that you want to be able to build -->
-     <!-- your spell index on. This should be a field that uses a very -->
-     <!-- simple FieldType without a lot of Analysis (ie: string) -->
-     <str name="termSourceField">word</str>
-     
-   </requestHandler>
-
-  
   <!-- Update request handler.  
   
        Note: Since solr1.1 requestHandlers requires a valid content type header if posted in 
@@ -470,4 +447,93 @@
     -->
   </admin>
 
+  <searchComponent name="spellcheck" class="solr.SpellCheckComponent">
+
+    <lst name="spellchecker">
+      <str name="name">default</str>
+      <str name="classname">solr.IndexBasedSpellChecker</str>
+      <str name="field">spell_de</str>
+      <str name="spellcheckIndexDir">./spellcheck_lang_de</str>
+      <str name="accuracy">0.5</str>
+    </lst>
+    <lst name="spellchecker">
+      <str name="name">en</str>
+      <str name="classname">solr.IndexBasedSpellChecker</str>
+      <str name="field">spell_en</str>
+      <str name="spellcheckIndexDir">./spellcheck_lang_en</str>
+      <str name="accuracy">0.5</str>
+    </lst>
+    <lst name="spellchecker">
+      <str name="name">fr</str>
+      <str name="classname">solr.IndexBasedSpellChecker</str>
+      <str name="field">spell_fr</str>
+      <str name="spellcheckIndexDir">./spellcheck_lang_fr</str>
+      <str name="accuracy">0.5</str>
+    </lst>
+
+
+<!--      <lst name="spellchecker">
+        <str name="name">title_in_en</str>
+        <str name="classname">solr.IndexBasedSpellChecker</str>
+        <str name="field">title_in_en_t</str>
+        <str name="spellcheckIndexDir">./spellchecke_de</str>
+        <str name="accuracy">0.5</str>
+      </lst>
+      <lst name="spellchecker">
+        <str name="name">title_in_fr</str>
+        <str name="classname">solr.IndexBasedSpellChecker</str>
+        <str name="field">title_in_fr_t</str>
+        <str name="spellcheckIndexDir">./spellchecke_de</str>
+        <str name="accuracy">0.5</str>
+      </lst>
+-->
+      <!-- Example of using different distance measure -->
+<!--      <lst name="spellchecker">
+        <str name="name">jarowinkler</str>
+        <str name="field">lowerfilt</str>
+        <str name="distanceMeasure">org.apache.lucene.search.spell.JaroWinklerDistance</str>
+        <str name="spellcheckIndexDir">./spellchecker</str>
+
+      </lst>
+-->
+
+      <!-- This field type's analyzer is used by the QueryConverter to tokenize the value for "q" parameter -->
+     <str name="queryAnalyzerFieldType">textSpell</str>
+  </searchComponent>
+  <!--
+    The SpellingQueryConverter to convert raw (CommonParams.Q) queries into tokens.  Uses a simple regular expression
+    to strip off field markup, boosts, ranges, etc. but it is not guaranteed to match an exact parse from the query parser.
+
+    Optional, defaults to solr.SpellingQueryConverter
+  -->
+  <queryConverter name="queryConverter" class="solr.SpellingQueryConverter"/>
+
+  <!--  Add to a RequestHandler
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  NOTE:  YOU LIKELY DO NOT WANT A SEPARATE REQUEST HANDLER FOR THIS COMPONENT.  THIS IS DONE HERE SOLELY FOR
+  THE SIMPLICITY OF THE EXAMPLE.  YOU WILL LIKELY WANT TO BIND THE COMPONENT TO THE /select STANDARD REQUEST HANDLER.
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  -->
+  <requestHandler name="/spellCheckCompRH" class="solr.SearchHandler">
+    <lst name="defaults">
+      <!-- Optional, must match spell checker's name as defined above, defaults to "default" -->
+      <str name="spellcheck.dictionary">default</str>
+      <!-- omp = Only More Popular -->
+      <str name="spellcheck.onlyMorePopular">true</str>
+      <!-- exr = Extended Results -->
+      <str name="spellcheck.extendedResults">false</str>
+      <!--  The number of suggestions to return -->
+      <str name="spellcheck.count">5</str>
+      <str name="buildOnCommit">true</str>
+    </lst>
+  <!--  Add to a RequestHandler
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  REPEAT NOTE:  YOU LIKELY DO NOT WANT A SEPARATE REQUEST HANDLER FOR THIS COMPONENT.  THIS IS DONE HERE SOLELY FOR
+  THE SIMPLICITY OF THE EXAMPLE.  YOU WILL LIKELY WANT TO BIND THE COMPONENT TO THE /select STANDARD REQUEST HANDLER.
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  -->
+    <arr name="last-components">
+      <str>spellcheck</str>
+    </arr>
+  </requestHandler>
 </config>
