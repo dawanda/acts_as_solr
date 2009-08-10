@@ -18,7 +18,7 @@ To run the acts_as_solr's plugin tests run the following steps:
 
 - rake solr:start RAILS_ENV=test
 
-- rake test:functional (Accepts the following arguments: DB=sqlite|mysql and MYSQL_USER=user)
+- rake test:functional (Accepts the following arguments: DB=sqlite|mysql and MYSQL_USER=user and optional MYSQL_PASSWORD)
 
 == Troubleshooting:
 If for some reason the tests don't run and you get MySQL errors, make sure you edit the MYSQL_USER entry under

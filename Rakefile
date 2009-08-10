@@ -16,7 +16,8 @@ namespace :test do
     ENV['RAILS_ENV'] = "test"
     require File.dirname(__FILE__) + '/config/solr_environment'
     puts "Using " + DB
-    %x(mysql -u#{MYSQL_USER} < #{File.dirname(__FILE__) + "/test/fixtures/db_definitions/mysql.sql"}) if DB == 'mysql'
+    pass = MYSQL_PASSWORD ? " -p#{MYSQL_PASSWORD} ":""
+    %x(mysql -u#{MYSQL_USER} #{pass} < #{File.dirname(__FILE__) + "/test/fixtures/db_definitions/mysql.sql"}) if DB == 'mysql'
 
     Rake::Task["test:migrate"].invoke
   end
