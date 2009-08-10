@@ -147,6 +147,7 @@
    <field name="pk_s" type="string" indexed="true" stored="true"/>   
    <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
 
+
    <dynamicField name="*_i" type="integer" indexed="true" stored="false"/>
    <dynamicField name="*_t" type="text" indexed="true" stored="false"/>
    <dynamicField name="*_f" type="float" indexed="true" stored="false"/>
@@ -159,7 +160,18 @@
    <dynamicField name="*_s_mv" type="string" indexed="true" stored="false" multiValued="true"/>
    <dynamicField name="*_zh_text" type="text_zh" indexed="true" stored="false" multiValued="true"/>
    <dynamicField name="*_display" type="text" indexed="false" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_de_t" type="german_text" indexed="true" stored="false"/>
+   <dynamicField name="*_fr_t" type="french_text" indexed="true" stored="false"/>
+
    <dynamicField name="random*" type="rand" indexed="true" stored="false"/>
+
+   <dynamicField name="*_languages_t" type="text_ws" indexed="true" stored="false"/>
+   <dynamicField name="*_hex_t" type="text_ws" indexed="true" stored="false"/>
+
+   <dynamicField name="location_*" type="text_ws" indexed="true" stored="false"/>
+   <dynamicField name="country_*" type="text_ws" indexed="true" stored="false" />
+
  </fields>
 
  <uniqueKey>id</uniqueKey>
