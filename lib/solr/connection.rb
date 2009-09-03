@@ -147,15 +147,16 @@ class Solr::Connection
   
   # send a given Solr::Request and return a RubyResponse or XmlResponse
   # depending on the type of request
-  def send(request, opts => {:timeout => 5})
+  def send(request, opts = {:timeout => 5})
     data = post(request, opts)
     Solr::Response::Base.make_response(request, data)
   end
 
   # send the http post request to solr; for convenience there are shortcuts
   # to some requests: add(), query(), commit(), delete() or send()
-  def post(request)
+  def post(request, opts={:timeout => 5})
     begin 
+      opts[:timeout] = nil unless request.handler == 'select'
       timeout(opts[:timeout].to_i) do
         response = @connection.post(@url.path + "/" + request.handler,
                                     request.to_s,
@@ -168,6 +169,7 @@ class Solr::Connection
         end
       end
     rescue Timeout::Error
+      raise Net::HTTPGatewayTimeOut
       ## handle the timeout
     end
   end

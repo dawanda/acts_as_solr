@@ -34,7 +34,7 @@ require File.dirname(__FILE__) + '/lazy_document'
 module ActsAsSolr
   
   class Post    
-    def self.execute(request, opts => {:timeout => 5})
+    def self.execute(request, opts = {:timeout => 5})
       begin
         if File.exists?(RAILS_ROOT+'/config/solr.yml')
           config = YAML::load_file(RAILS_ROOT+'/config/solr.yml')
