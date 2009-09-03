@@ -4,7 +4,7 @@ module ActsAsSolr #:nodoc:
     
     # Method used by mostly all the ClassMethods when doing a search
     def parse_query(query=nil, options={}, models=nil)
-      valid_options = [:offset, :limit, :facets, :models, :results_format, :order, :scores, :operator, :include, :lazy]
+      valid_options = [:offset, :limit, :facets, :models, :results_format, :order, :scores, :operator, :include, :lazy, :spellcheck]
       query_options = {}
 
       return nil if (query.nil? || query.strip == '')
@@ -61,6 +61,14 @@ module ActsAsSolr #:nodoc:
             
           end          
         end
+
+        #copy spellcheck params
+        if options[:spellcheck]
+          query_options[:spellcheck] = {}
+          [:query, :count, :collate, :dictionary, :omp].each do |arg|
+            query_options[:spellcheck][arg] = options[:spellcheck][arg]
+          end
+        end
         
         if models.nil?
           # TODO: use a filter query for type, allowing Solr to cache it individually
@@ -114,6 +122,7 @@ module ActsAsSolr #:nodoc:
       add_scores(result, solr_data) if configuration[:format] == :objects && options[:scores]
       
       results.update(:facets => solr_data.data['facet_counts']) if options[:facets]
+      results.update(:spellcheck => solr_data.data['spellcheck']) if options[:spellcheck]
       results.update({:docs => result, :total => solr_data.total_hits, :max_score => solr_data.max_score, :query_time => solr_data.data['responseHeader']['QTime']})
       SearchResults.new(results)
     end
