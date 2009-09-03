@@ -34,7 +34,7 @@ require File.dirname(__FILE__) + '/lazy_document'
 module ActsAsSolr
   
   class Post    
-    def self.execute(request)
+    def self.execute(request, opts => {:timeout => 5})
       begin
         if File.exists?(RAILS_ROOT+'/config/solr.yml')
           config = YAML::load_file(RAILS_ROOT+'/config/solr.yml')
@@ -45,7 +45,7 @@ module ActsAsSolr
           url = 'http://localhost:8982/solr'
         end
         connection = Solr::Connection.new(url)
-        return connection.send(request)
+        return connection.send(request, opts)
       rescue 
         raise "Couldn't connect to the Solr server at #{url}. #{$!}"
         false
