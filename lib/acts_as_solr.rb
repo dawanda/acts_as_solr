@@ -33,26 +33,39 @@ require File.dirname(__FILE__) + '/search_results'
 require File.dirname(__FILE__) + '/lazy_document'
 module ActsAsSolr
   
-  class Post    
-    def self.execute(request)
+  def self.config
+    file = RAILS_ROOT+'/config/solr.yml'
+    if File.exists?(file)
+      YAML::load_file(file)[RAILS_ENV]
+    else
+      warn "no config found #{file}"
+      {}
+    end
+  end
+  
+  def self.url
+    url = config['url']
+    # for backwards compatibility
+    url ||= "http://#{config['host']}:#{config['port']}/#{config['servlet_path']}"
+    url ||= 'http://localhost:8982/solr'
+    url
+  end
+  
+  def self.client_timeout
+    client_timeout = config['client_timeout'].to_i || 5
+  end
+  
+  class Post
+    def self.execute(request, opts={})
       begin
-        if File.exists?(RAILS_ROOT+'/config/solr.yml')
-          config = YAML::load_file(RAILS_ROOT+'/config/solr.yml')
-          url = config[RAILS_ENV]['url']
-          # for backwards compatibility
-          url ||= "http://#{config[RAILS_ENV]['host']}:#{config[RAILS_ENV]['port']}/#{config[RAILS_ENV]['servlet_path']}"
-        else
-          url = 'http://localhost:8982/solr'
-        end
-        connection = Solr::Connection.new(url)
-        return connection.send(request)
+        connection = Solr::Connection.new(ActsAsSolr.url)
+        return connection.send(request, opts)
       rescue 
-        raise "Couldn't connect to the Solr server at #{url}. #{$!}"
+        raise "Couldn't connect to the Solr server at #{ActsAsSolr.url}. #{$!}"
         false
       end
     end
   end
-  
 end
 
 # reopen ActiveRecord and include the acts_as_solr method

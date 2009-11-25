@@ -19,7 +19,8 @@ module ActsAsSolr #:nodoc:
         # first steps on the facet parameter processing
         if options[:facets]
           query_options[:facets] = {}
-          query_options[:facets][:limit] = -1  # TODO: make this configurable
+          query_options[:facets][:limit] = -1
+          query_options[:facets][:limit] = options[:facets][:limit] if options[:facets][:limit]
           query_options[:facets][:sort] = :count if options[:facets][:sort]
           query_options[:facets][:mincount] = 0
           query_options[:facets][:mincount] = 1 if options[:facets][:zeros] == false
