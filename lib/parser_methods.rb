@@ -80,6 +80,7 @@ module ActsAsSolr #:nodoc:
         
         query_options[:field_list] = [field_list, 'score']
         query = "(#{query.gsub(/ *: */,"_t:")}) #{models}"
+        query = query.gsub(/([\WT]\d+)_t/,"\\1") # (123_t -> 123 and (category_3_t -> category_3_t 
         order = options[:order].split(/\s*,\s*/).collect{|e| e.gsub(/\s+/,'_t ').gsub(/\bscore_t\b/, 'score')  }.join(',') if options[:order] 
         query_options[:query] = replace_types([query])[0] # TODO adjust replace_types to work with String or Array  
 
@@ -161,23 +162,19 @@ module ActsAsSolr #:nodoc:
     # on the acts_as_solr call
     def replace_types(strings, include_colon=true)
       suffix = include_colon ? ":" : ""
-      if configuration[:solr_fields]
-        configuration[:solr_fields].each do |name, options|
-          solr_name = options[:as] || name.to_s
-          solr_type = get_solr_field_type(options[:type])
-          field = "#{solr_name}_#{solr_type}#{suffix}"
-          strings.each_with_index {|s,i| strings[i] = s.gsub(/#{solr_name.to_s}_t#{suffix}/,field) }
-        end
-      end
-      if configuration[:solr_includes]
-        configuration[:solr_includes].each do |association, options|
-          solr_name = options[:as] || association.to_s.singularize
-          solr_type = get_solr_field_type(options[:type])
-          field = "#{solr_name}_#{solr_type}#{suffix}"
-          strings.each_with_index {|s,i| strings[i] = s.gsub(/#{solr_name.to_s}_t#{suffix}/,field) }
-        end
-      end
+      really_replace_type(strings, suffix, configuration[:solr_fields])
+      really_replace_type(strings, suffix, configuration[:solr_includes])
       strings
+    end
+
+    def really_replace_type(strings, suffix, fields)
+      return unless fields
+      fields.each do |name, options|
+        solr_name = options[:as] || name.to_s
+        solr_type = get_solr_field_type(options[:type])
+        field = "#{solr_name}_#{solr_type}#{suffix}"
+        strings.each_with_index{|s,i| strings[i] = s.gsub(/(\W|^)#{solr_name.to_s}_t#{suffix}/,"\\1#{field}") }
+      end
     end
     
     # Adds the score to each one of the instances found

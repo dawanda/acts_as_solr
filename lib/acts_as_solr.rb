@@ -50,6 +50,11 @@ module ActsAsSolr
     url ||= 'http://localhost:8982/solr'
     url
   end
+
+  def self.slave_url
+    config['slave_url']
+  end
+
   
   def self.client_timeout
     client_timeout = config['client_timeout'].to_i || 5
@@ -58,7 +63,9 @@ module ActsAsSolr
   class Post
     def self.execute(request, opts={})
       begin
-        connection = Solr::Connection.new(ActsAsSolr.url)
+        opts = {}
+        opts = {:slave => ActsAsSolr.slave_url} if ActsAsSolr.slave_url
+        connection = Solr::Connection.new(ActsAsSolr.url, opts)
         return connection.send(request, opts)
       rescue 
         raise "Couldn't connect to the Solr server at #{ActsAsSolr.url}. #{$!}"

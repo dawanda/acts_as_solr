@@ -65,8 +65,13 @@ module ActsAsSolr #:nodoc:
           # http://www.mail-archive.com/solr-dev@lucene.apache.org/msg05423.html
           next if value.nil? || value.to_s.strip.empty?
           [value].flatten.each do |v|
-            v = set_value_if_nil(suffix) if value.to_s == ""
-            field = Solr::Field.new("#{solr_name}_#{suffix}" => ERB::Util.html_escape(v.to_s))
+            v = v.to_s
+            # remove illegal control character in text <-> cannot be added ("\0#{i}" does not work...)
+            ["\032","\033","\034","\035","\036","\037"].each do |char|
+              v = v.gsub(char,'')
+            end
+            v = set_value_if_nil(suffix) if value == ""
+            field = Solr::Field.new("#{solr_name}_#{suffix}" => ERB::Util.html_escape(v))
             field.boost = validate_boost(field_boost)
             doc << field
           end
