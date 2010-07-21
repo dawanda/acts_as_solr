@@ -67,7 +67,7 @@ module ActsAsSolr #:nodoc:
           [value].flatten.each do |v|
             v = v.to_s
             # remove illegal control character in text <-> cannot be added ("\0#{i}" does not work...)
-            ["\032","\033","\034","\035","\036","\037"].each do |char|
+            ["\032","\033","\034","\035","\036","\037", "\v"].each do |char|
               v = v.gsub(char,'')
             end
             v = set_value_if_nil(suffix) if value == ""
