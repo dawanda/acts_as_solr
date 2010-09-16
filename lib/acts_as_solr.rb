@@ -31,8 +31,8 @@ require File.dirname(__FILE__) + '/common_methods'
 require File.dirname(__FILE__) + '/deprecation'
 require File.dirname(__FILE__) + '/search_results'
 require File.dirname(__FILE__) + '/lazy_document'
+
 module ActsAsSolr
-  
   def self.config
     file = RAILS_ROOT+'/config/solr.yml'
     if File.exists?(file)
@@ -57,13 +57,13 @@ module ActsAsSolr
 
   
   def self.client_timeout
-    client_timeout = config['client_timeout'].to_i || 5
+    config['client_timeout'].to_i || 5
   end
-  
+
   class Post
     def self.execute(request, opts={})
       begin
-        opts = {}
+        opts = {} # this is bad....
         opts = {:slave => ActsAsSolr.slave_url} if ActsAsSolr.slave_url
         connection = Solr::Connection.new(ActsAsSolr.url, opts)
         return connection.send(request, opts)

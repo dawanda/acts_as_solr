@@ -4,7 +4,7 @@ module ActsAsSolr #:nodoc:
     
     # Method used by mostly all the ClassMethods when doing a search
     def parse_query(query=nil, options={}, models=nil)
-      valid_options = [:offset, :limit, :facets, :models, :results_format, :order, :scores, :operator, :include, :lazy, :spellcheck]
+      valid_options = [:offset, :limit, :facets, :models, :results_format, :order, :scores, :operator, :include, :lazy, :spellcheck, :q_extras]
       query_options = {}
 
       return nil if (query.nil? || query.strip == '')
@@ -14,6 +14,7 @@ module ActsAsSolr #:nodoc:
         Deprecation.validate_query(options)
         query_options[:start] = options[:offset]
         query_options[:rows] = options[:limit]
+        query_options[:q_extras] = options[:q_extras]
         query_options[:operator] = options[:operator]
         
         # first steps on the facet parameter processing
@@ -79,7 +80,7 @@ module ActsAsSolr #:nodoc:
         end
         
         query_options[:field_list] = [field_list, 'score']
-        query = "(#{query.gsub(/ *: */,"_t:")}) #{models}"
+        query = "(#{query.gsub(/([^\*]) *: */, "\\1_t:")}) #{models}" # *:xxx -> *:xxx a : b -> a_t:b
         query = query.gsub(/([\WT]\d+)_t/,"\\1") # (123_t -> 123 and (category_3_t -> category_3_t 
         order = options[:order].split(/\s*,\s*/).collect{|e| e.gsub(/\s+/,'_t ').gsub(/\bscore_t\b/, 'score')  }.join(',') if options[:order] 
         query_options[:query] = replace_types([query])[0] # TODO adjust replace_types to work with String or Array  
@@ -87,6 +88,7 @@ module ActsAsSolr #:nodoc:
         if options[:order]
           # TODO: set the sort parameter instead of the old ;order. style.
           query_options[:query] << ';' << replace_types([order], false)[0]
+          #query_options[:sort] = replace_types([order], false)[0] # does not work
         end
         
         ActsAsSolr::Post.execute(Solr::Request::Standard.new(query_options))

@@ -14,7 +14,7 @@ class Solr::Request::Standard < Solr::Request::Select
 
   VALID_PARAMS = [:query, :sort, :default_field, :operator, :start, :rows, :shards, :date_facets,
     :filter_queries, :field_list, :debug_query, :explain_other, :facets, :highlighting, :mlt, :spellcheck,
-    :spellcheck_query, :spellcheck_collate, :spellcheck_dictionary, :spellcheck_count, :spellcheck_omp
+    :spellcheck_query, :spellcheck_collate, :spellcheck_dictionary, :spellcheck_count, :spellcheck_omp, :q_extras
   ]
   
   def initialize(params)
@@ -52,7 +52,9 @@ class Solr::Request::Standard < Solr::Request::Select
       key = sort.keys[0]
       "#{key.to_s} #{sort[key] == :descending ? 'desc' : 'asc'}"
     end.join(',') if @params[:sort]
-    hash[:q] = sort ? "#{@params[:query]};#{sort}" : @params[:query]
+    hash[:q] = sort ? "#{@params[:query]}&sort=#{sort}" : @params[:query]
+    #hash[:sort] = sort if sort
+    #hash[:q] = @params[:query]
     hash["q.op"] = @params[:operator]
     hash[:df] = @params[:default_field]
 
@@ -406,7 +408,17 @@ class Solr::Request::Standard < Solr::Request::Select
       hash["mlt.maxntp"] = @params[:mlt][:max_tokens_parsed]
       hash["mlt.boost"] = @params[:mlt][:boost]
     end
+
+    if @params[:q_extras] and hash[:q].include?("_val_") == false
+      if hash[:q].include?(";")
+        hash[:q].gsub!(";"," #{@params[:q_extras]};")
+      else
+        hash[:q] << " #{@params[:q_extras]}" 
+      end
+    end
+      
     
+    hash["defType"] = "lucenePlusSort" # for compatibility <= 1.3 sort not by &sort but by q=xxxxx; param
     hash.merge(super.to_hash)
   end
 
