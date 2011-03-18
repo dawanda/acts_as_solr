@@ -34,9 +34,9 @@ require File.dirname(__FILE__) + '/lazy_document'
 
 module ActsAsSolr
   def self.config
-    file = RAILS_ROOT+'/config/solr.yml'
+    file = "#{Rails.root}/config/solr.yml"
     if File.exists?(file)
-      YAML::load_file(file)[RAILS_ENV]
+      YAML::load_file(file)[Rails.env]
     else
       warn "no config found #{file}"
       {}
@@ -52,7 +52,7 @@ module ActsAsSolr
   end
 
   def self.slave_url
-    config['slave_url']
+    config['slave_url'] || url
   end
 
   
@@ -61,15 +61,12 @@ module ActsAsSolr
   end
 
   class Post
-    def self.execute(request, opts={})
+    def self.execute(request, options={})
+      url = (options[:slave] ? ActsAsSolr.slave_url : ActsAsSolr.url)
       begin
-        opts = {} # this is bad....
-        opts = {:slave => ActsAsSolr.slave_url} if ActsAsSolr.slave_url
-        connection = Solr::Connection.new(ActsAsSolr.url, opts)
-        return connection.send(request, opts)
-      rescue 
-        raise "Couldn't connect to the Solr server at #{ActsAsSolr.url}. #{$!}"
-        false
+        Solr::Connection.new(url).send(request, options)
+      rescue
+        raise "Couldn't connect to the Solr server at #{url}. #{$!}"
       end
     end
   end

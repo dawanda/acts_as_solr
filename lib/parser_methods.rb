@@ -4,7 +4,7 @@ module ActsAsSolr #:nodoc:
 
     # Method used by mostly all the ClassMethods when doing a search
     def parse_query(query=nil, options={}, models=nil)
-      valid_options = [:offset, :limit, :facets, :models, :results_format, :order, :scores, :operator, :include, :lazy, :spellcheck, :q_extras]
+      valid_options = [:offset, :limit, :facets, :models, :results_format, :order, :scores, :operator, :include, :lazy, :spellcheck, :q_extras, :slave]
       query_options = {}
 
       return nil if (query.nil? || query.strip == '')
@@ -91,7 +91,7 @@ module ActsAsSolr #:nodoc:
           #query_options[:sort] = replace_types([order], false)[0] # does not work
         end
 
-        ActsAsSolr::Post.execute(Solr::Request::Standard.new(query_options))
+        ActsAsSolr::Post.execute(Solr::Request::Standard.new(query_options), :slave => options[:slave])
       rescue
         raise "There was a problem executing your search: #{$!} in #{$!.backtrace.first}"
       end

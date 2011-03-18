@@ -41,7 +41,8 @@ class Solr::Request::AddDocument < Solr::Request::Update
   # returns the request as a string suitable for posting
   
   def to_s
-    e = Solr::XML::Element.new 'add'
+    #e = Solr::XML::Element.new "add overwritePending='true'"
+    e = Solr::XML::Element.new "add"
     for doc in @docs
       e.add_element doc.to_xml
     end
