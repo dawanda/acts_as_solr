@@ -230,6 +230,11 @@ class InstanceMethodsTest < Test::Unit::TestCase
           assert_nil     doc.fields.find {|f| f.name.to_s == "nickname_s"}
         end
 
+        should "remove invalid chars" do
+          @instance.name = "01ab\032\037ááóíúáßðúæ©ßð"
+          assert_equal "01abááóíúáßðúæ©ßð", @instance.to_solr_doc[:name_s]
+        end
+
         context "when associations are included" do
           setup do
             class AssocLabel < String

@@ -67,9 +67,7 @@ module ActsAsSolr #:nodoc:
           [value].flatten.each do |v|
             v = v.to_s
             # remove illegal control character in text <-> cannot be added ("\0#{i}" does not work...)
-            ["\032","\033","\034","\035","\036","\037", "\v"].each do |char|
-              v = v.gsub(char,'')
-            end
+            v.gsub!(/[\x00-\x1f]/,'')
             v = set_value_if_nil(suffix) if value == ""
             field = Solr::Field.new("#{solr_name}_#{suffix}" => ERB::Util.html_escape(v))
             field.boost = validate_boost(field_boost)
