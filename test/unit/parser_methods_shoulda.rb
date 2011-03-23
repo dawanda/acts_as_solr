@@ -208,6 +208,13 @@ class ParserMethodsTest < Test::Unit::TestCase
         }
         @parser.parse_query "username:Chunky"
       end
+
+      should "adds _i for pk" do
+        ActsAsSolr::Post.expects(:execute).with {|request, options|
+          request.to_hash[:q].include?("(pk_i:1)")
+        }
+        @parser.parse_query "pk:1"
+      end
     
       should "replace the field types" do
         @parser.expects(:replace_types).returns(["active_i:1"])
