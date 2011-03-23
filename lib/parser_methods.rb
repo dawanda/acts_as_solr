@@ -92,8 +92,8 @@ module ActsAsSolr #:nodoc:
         end
 
         ActsAsSolr::Post.execute(Solr::Request::Standard.new(query_options), :slave => options[:slave])
-      rescue
-        raise "There was a problem executing your search: #{$!} in #{$!.backtrace.first}"
+#      rescue
+#        raise "There was a problem executing your search: #{$!} in #{$!.backtrace.first}"
       end
     end
 
@@ -164,7 +164,7 @@ module ActsAsSolr #:nodoc:
     # on the acts_as_solr call
     def replace_types(strings, include_colon=true)
       suffix = include_colon ? ":" : ""
-      really_replace_type(strings, suffix, configuration[:solr_fields].merge(:pk => {:type => :integer})) # pk (solr primary key) must be queried as integer
+      really_replace_type(strings, suffix, (configuration[:solr_fields]||{}).merge(:pk => {:type => :integer})) # pk (solr primary key) must be queried as integer
       really_replace_type(strings, suffix, configuration[:solr_includes])
       strings
     end

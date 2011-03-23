@@ -167,7 +167,7 @@ class ParserMethodsTest < Test::Unit::TestCase
       end
     
       should "set the limit and offset" do
-        ActsAsSolr::Post.expects(:execute).with {|request|
+        ActsAsSolr::Post.expects(:execute).with {|request, options|
           10 == request.to_hash[:rows]
           20 == request.to_hash[:start]
         }
@@ -175,7 +175,7 @@ class ParserMethodsTest < Test::Unit::TestCase
       end
     
       should "set the operator" do
-        ActsAsSolr::Post.expects(:execute).with {|request|
+        ActsAsSolr::Post.expects(:execute).with {|request, options|
           "OR" == request.to_hash["q.op"]
         }
         @parser.parse_query "foo", :operator => :or
@@ -196,14 +196,14 @@ class ParserMethodsTest < Test::Unit::TestCase
       end
     
       should "add the type" do
-        ActsAsSolr::Post.expects(:execute).with {|request|
+        ActsAsSolr::Post.expects(:execute).with {|request, options|
           request.to_hash[:q].include?("(type:ParserMethodsTest)")
         }
         @parser.parse_query "foo"
       end
     
       should "append the field types for the specified fields" do
-        ActsAsSolr::Post.expects(:execute).with {|request|
+        ActsAsSolr::Post.expects(:execute).with {|request, options|
           request.to_hash[:q].include?("(username_t:Chunky)")
         }
         @parser.parse_query "username:Chunky"
@@ -211,14 +211,14 @@ class ParserMethodsTest < Test::Unit::TestCase
     
       should "replace the field types" do
         @parser.expects(:replace_types).returns(["active_i:1"])
-        ActsAsSolr::Post.expects(:execute).with {|request|
+        ActsAsSolr::Post.expects(:execute).with {|request, options|
           request.to_hash[:q].include?("active_i:1")
         }
         @parser.parse_query "active:1"
       end
     
       should "add score and primary key to field list" do
-        ActsAsSolr::Post.expects(:execute).with {|request|
+        ActsAsSolr::Post.expects(:execute).with {|request, options|
           request.to_hash[:fl] == ('id,score')
         }
         @parser.parse_query "foo"
@@ -226,7 +226,7 @@ class ParserMethodsTest < Test::Unit::TestCase
     
       context "with the order option" do
         should "add the order criteria to the query" do
-          ActsAsSolr::Post.expects(:execute).with {|request|
+          ActsAsSolr::Post.expects(:execute).with {|request, options|
             request.to_hash[:q].include?(";active_t desc")
           }
           @parser.parse_query "active:1", :order => "active desc"
