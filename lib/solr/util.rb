@@ -20,7 +20,7 @@ class Solr::Util
     end
   end
 
-  # paired_array_to_hash([key1,value1,key2,value2]) => {key1 => value1, key2, value2}
+  # paired_array_to_hash([key1,value1,key2,value2]) --> {key1 => value1, key2 => value2}
   def self.paired_array_to_hash(a)
     Hash[*a]
   end
