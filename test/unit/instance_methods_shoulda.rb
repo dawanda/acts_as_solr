@@ -226,8 +226,8 @@ class InstanceMethodsTest < Test::Unit::TestCase
           @instance.stubs(:nickname_for_solr).returns('Nick')
           @instance.configuration[:solr_fields].merge! :nickname => {:as => :alias}
           doc = @instance.to_solr_doc
-          assert_not_nil @instance.to_solr_doc.fields.find {|f| f.name.to_s == "alias_s"}
-          assert_nil     @instance.to_solr_doc.fields.find {|f| f.name.to_s == "nickname_s"}
+          assert_not_nil doc.fields.find {|f| f.name.to_s == "alias_s"}
+          assert_nil     doc.fields.find {|f| f.name.to_s == "nickname_s"}
         end
 
         context "when associations are included" do
