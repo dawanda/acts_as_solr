@@ -34,15 +34,17 @@ require File.dirname(__FILE__) + '/lazy_document'
 
 module ActsAsSolr
   def self.config
-    file = "#{Rails.root}/config/solr.yml"
-    if File.exists?(file)
-      YAML::load_file(file)[Rails.env]
-    else
-      warn "no config found #{file}"
-      {}
+    @@config ||= begin
+      file = "#{Rails.root}/config/solr.yml"
+      if File.exists?(file)
+        YAML::load_file(file)[Rails.env]
+      else
+        warn "no config found #{file}"
+        {}
+      end
     end
   end
-  
+
   def self.url
     url = config['url']
     # for backwards compatibility
@@ -55,7 +57,7 @@ module ActsAsSolr
     config['slave_url'] || url
   end
 
-  
+
   def self.client_timeout
     config['client_timeout'].to_i || 5
   end
